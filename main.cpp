@@ -1,11 +1,18 @@
 #include <Cube.h>
+#include <GameView.h>
 #include <Printer.h>
+#include <kbhit.h>
 #include <iostream>
 int main() {
-  Printer p;
-  p.PrintStartInterface();
-  Cube c(Cube::CubeType::LEFTGUN, 2);
-  p.PrintCube(c, 14, 24);
-  getchar();
-  return 0;
+  GameView game;
+  game.init();
+  game.show();
+  KeyMeneger km;
+  km.init_kbhit();
+  while (1) {
+    if (km.kbhit()) {
+      game.Act(getchar());
+    }
+  }
+  km.finish_kbhit();
 }

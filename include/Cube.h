@@ -1,15 +1,30 @@
 #pragma once
+#include <vector>
+using namespace std;
 class Cube {
-public:
-  enum CubeType : int { RIGHTGUN, LEFTGUN, SHAN, RIGHTYAZI, LEFTYAZI, STICK };
-
-  Cube(CubeType ct_, int cm_);
-  bool Display[5][5];
-
-private:
+ public:
+  enum CubeType : int {
+    RIGHTGUN = 0,
+    LEFTGUN,
+    SHAN,
+    RIGHTYAZI,
+    LEFTYAZI,
+    STICK
+  };
+  Cube(const Cube& other) {
+    type_ = other.type_;
+    CubeMode_ = other.CubeMode_;
+    locate_x = other.locate_x;
+    locate_y = other.locate_y;
+    Display.assign(other.Display.begin(), other.Display.end());
+  }
+  Cube(CubeType ct_, int cm_, int x_, int y_);
+  vector<vector<bool>> Display;
   CubeType type_;
   int CubeMode_;
-  const bool DisplayMap[6][4][5][5] = {
+  int locate_x, locate_y;
+  int maxCubeMode_;
+  static constexpr bool DisplayMap[6][4][5][5]{
       // type 1 RIGHT_GUN
       {{
            {0, 0, 1, 0, 0},

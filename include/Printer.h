@@ -4,7 +4,6 @@
 #include <memory>
 class Printer {
 public:
-  void PrintStartInterface();
   Printer();
   void PrintCube(Cube &cube_, int x, int y);
   ~Printer();
