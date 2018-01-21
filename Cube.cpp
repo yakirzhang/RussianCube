@@ -14,8 +14,9 @@ Cube::Cube(CubeType ct_, int cm_, int x, int y)
 
   for (int i = 0; i < 5; i++) {
     vector<bool> tmp;
-    tmp.assign(Cube::DisplayMap[type_][CubeMode_][i][0],
-               Cube::DisplayMap[type_][CubeMode_][i][5]);
+    for (int j = 0; j < 5; j++) {
+      tmp.push_back(Cube::DisplayMap[type_][CubeMode_][i][j]);
+    }
     Display.push_back(tmp);
   }
 }

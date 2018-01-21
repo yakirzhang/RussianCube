@@ -1,5 +1,5 @@
 class DownCubes {
  public:
-  bool BackGround[25][15] = {{0}};
+  bool BackGround[30][40] = {{0}};
 
 };

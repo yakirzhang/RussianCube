@@ -1,5 +1,6 @@
 #include <Cube.h>
 #include <GameView.h>
+#include <Interface.h>
 #include <Printer.h>
 #include <kbhit.h>
 #include <iostream>
@@ -11,7 +12,7 @@ int main() {
   km.init_kbhit();
   while (1) {
     if (km.kbhit()) {
-      game.Act(getchar());
+      if (!game.Act(getchar())) break;
     }
   }
   km.finish_kbhit();

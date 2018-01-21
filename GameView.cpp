@@ -5,8 +5,11 @@
 #include <GameView.h>
 
 GameView::GameView()
-    : UpCube(Cube::CubeType(random() % 6), random() % 4, 10, 0) {
+    : UpCube(Cube::CubeType(random() % 6), random() % 4, 20, 20) {
   Startview = Interface();
+  DownView = Interface();
+  UpView = Interface();
+  p = Printer();
 }
 void GameView::init() {
   Startview.InsertHline(10, 5, 48);
@@ -23,18 +26,81 @@ void GameView::init() {
   Startview.InsertLable(9 + 2 + 28 + 2 + 4, 4 + 1 + 8 + 1 + 10, "Level: 1");
 }
 
-bool GameView::IsCollission(Cube &cube) {}
+bool GameView::IsCollission(Cube &cube) {
+  for (int i = 0; i < 5; i++)
+    for (int j = 0; j < 5; j++) {
+      if (cube.Display[j][i]) {
+        if (2 * i + cube.locate_x < 12 || 2 * i + 2 + cube.locate_x > 40)
+          return true;
+        if (j + cube.locate_y <= 5 || j + cube.locate_y >= 30) return true;
+        if (DownCube.BackGround[j + cube.locate_y][2 * i + cube.locate_x] ||
+            DownCube.BackGround[j + cube.locate_y][2 * i + cube.locate_x + 1])
+          return true;
+      }
+    }
+  return false;
+}
+bool GameView::OutputDownView() {
+  for (int i = 0; i < 30; i++)
+    for (int j = 0; j < 40; j++)
+      if (DownCube.BackGround[i][j]) {
+        p.PrintXY("1", TerminalControl::ColorType::RED,
+                  TerminalControl::ColorLocate::BACK, j + 60, i);
+      } else {
+        p.PrintXY("0", TerminalControl::ColorType::RED,
+                  TerminalControl::ColorLocate::BACK, j + 60, i);
+      }
+}
 Cube GameView::CreatRandomCube() {
   srand(time(NULL));
-  return Cube(Cube::CubeType(random() % 6), random() % 4, 10, 0);
+  return Cube(Cube::CubeType(random() % 6), random() % 4, 26, 10);
 }
 
-void GameView::UpdateDown() {
+void GameView::UpdateDown(Cube &cube) {
+  //  DownView.InserArea(UpCube.locate_x, UpCube.locate_y, 5, 5,
+  //                   UpCube.Display);
   // todo 判断是否消除
+  for (int i = 0; i < 5; i++)
+    for (int j = 0; j < 5; j++) {
+      if (cube.Display[j][i]) {
+        DownCube.BackGround[cube.locate_y + j][cube.locate_x + 2 * i] = true;
+        DownCube.BackGround[cube.locate_y + j][cube.locate_x + 2 * i + 1] =
+            true;
+      }
+    }
+
+  vector<int> lastlines;
+  for (int j = 0; j < 30; j++) {
+    for (int i = 13; i < 40; i++) {
+      if (!DownCube.BackGround[j][i]) {
+        lastlines.push_back(j);
+        break;
+      }
+    }
+  }
+
+  if (lastlines.size() < 30) {
+    int a = lastlines.size();
+    for (int j = 29; j >= lastlines.size(); j--) {
+      for (int i = 12; i < 40; i++) {
+        // copy line in lastline to line J
+        int b = lastlines[j];
+        DownCube.BackGround[j][i] = DownCube.BackGround[lastlines[30 - j]][i];
+      }
+    }
+    for (int j = 30 - lastlines.size(); j >= 0; j--) {
+      for (int i = 12; i < 40; i++) {
+        DownCube.BackGround[j][i] = 0;
+      }
+    }
+  }
+  // DownView.ClearArea(DownCube.BackGround);
+
+  // DownView.DrawArea(DownCube.BackGround);
 
   // todo 判断是否结束游戏
 }
-void GameView::Act(char ch) {
+bool GameView::Act(char ch) {
   switch (ch) {
     case 'w': {
       Cube NextCube_mode =
@@ -61,15 +127,16 @@ void GameView::Act(char ch) {
                          NextCube_down.Display);
         UpCube = NextCube_down;
       } else {
+        UpdateDown(UpCube);
+        OutputDownView();
         UpCube = CreatRandomCube();
-        UpdateDown();
       }
       break;
     }
 
     case 'a': {
       Cube NextCube_left = Cube(UpCube.type_, UpCube.CubeMode_,
-                                UpCube.locate_x - 1, UpCube.locate_y);
+                                UpCube.locate_x - 2, UpCube.locate_y);
       if (!IsCollission(NextCube_left)) {
         UpView.ClearArea(UpCube.locate_x, UpCube.locate_y, 5, 5,
                          UpCube.Display);
@@ -82,7 +149,7 @@ void GameView::Act(char ch) {
 
     case 'd': {
       Cube NextCube_right = Cube(UpCube.type_, UpCube.CubeMode_,
-                                 UpCube.locate_x + 1, UpCube.locate_y);
+                                 UpCube.locate_x + 2, UpCube.locate_y);
       if (!IsCollission(NextCube_right)) {
         UpView.ClearArea(UpCube.locate_x, UpCube.locate_y, 5, 5,
                          UpCube.Display);
@@ -92,9 +159,13 @@ void GameView::Act(char ch) {
       }
       break;
     }
+    case 'q': {
+      return false;
+    }
     default:
       break;
   }
+  return true;
 }
 void GameView::show() {
   Startview.show();
