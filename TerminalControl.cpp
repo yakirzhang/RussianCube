@@ -13,9 +13,9 @@ void TerminalControl::clearScreen() {
 void TerminalControl::SetCursorVisual(bool showCursor) {
   char buff[30] = {0};
   if (showCursor)
-    snprintf(buff, sizeof(buff), "\033[?25l");
-  else
     snprintf(buff, sizeof(buff), "\033[?25h");
+  else
+    snprintf(buff, sizeof(buff), "\033[?25l");
   printf("%s", buff);
 };
 void TerminalControl::Reset() { SetPrintfProp("0", sizeof("0")); }
@@ -45,9 +45,10 @@ void TerminalControl::SetDisplayType(DisPlayType type_) {
   }
   SetPrintfProp(buff, sizeof(buff));
 }
-void TerminalControl::MoveCursor(int rows, int cols) {
+void TerminalControl::MoveCursor(int x, int y) {
   char buff[30] = {0};
-  snprintf(buff, sizeof(buff), "\033[%d;%dH", rows, cols);
+  // y;x as x is horizen
+  snprintf(buff, sizeof(buff), "\033[%d;%dH", y, x);
   printf("%s", buff);
 }
 void TerminalControl::SetColor(ColorType color_, ColorLocate color_locate_) {

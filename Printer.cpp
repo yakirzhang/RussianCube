@@ -2,48 +2,47 @@
 // Created by yakirzhang on 18-1-20.
 //
 #include <Printer.h>
-
-Printer::Printer() { terminal_ = std::make_shared<TerminalControl>(); }
+Printer::Printer() {
+  terminal_ = std::make_shared<TerminalControl>();
+  terminal_->SetCursorVisual(false);
+}
 void Printer::PrintXY(const char *str, TerminalControl::ColorType color,
                       TerminalControl::ColorLocate locate, int x, int y) {
-  terminal_->MoveCursor(y, x);
+  terminal_->MoveCursor(x, y);
   terminal_->SetColor(color, locate);
   terminal_->putString(str, strlen(str));
 }
-void Printer::SetCursorVisual(bool showCursor) {
-  terminal_->SetCursorVisual(showCursor);
-};
+Printer::~Printer() {
+  terminal_->SetCursorVisual(true);
+  terminal_->Reset();
+}
 //指定位置，输出图形
-void Printer::Print_mode_shape(int num, int mode, int x, int y,
-                               TerminalControl::ColorType color) {
-  //指定位置输出方块
-  int m_x = x;
-  int m_y = y;
-  int i;
-  for (i = 0; i < 16; i++) {
-    if (i != 0 && i % 4 == 0) {
-      m_x = x;
-      m_y++;
+void Printer::PrintCube(Cube &cube_, int x, int y) {
+  for (int i = 0; i < 5; i++)
+    for (int j = 0; j < 5; j++) {
+      if (cube_.Display[j][i])
+        PrintXY("  ", TerminalControl::ColorType::RED,
+                TerminalControl::ColorLocate::BACK, x + i * 2, y + j);
     }
-    if (shape[n][m][i] == 1) {
-      printxy("[]", c, m_x, m_y);
-    }
-    m_x = m_x + 2;
-  }
   fflush(NULL);
 };
+//打印棋盘
+void Printer::PrintMetrix(){
+
+}
+//打印界面
 void Printer::PrintStartInterface() {
   //清屏
   int l;
   int w;
   terminal_->clearScreen();
   int a, b;
-  int s_x = 9 + 2 + 28 + 2 + 4, s_y = 4 + 1 + 8 + 1 + 5;  //打印分数的位置
-  int l_x = 9 + 2 + 28 + 2 + 4, l_y = 4 + 1 + 8 + 1 + 10;  //打印关卡级别的位置
+  int s_x = 9 + 2 + 28 + 2 + 4, s_y = 4 + 1 + 8 + 1 + 5; //打印分数的位置
+  int l_x = 9 + 2 + 28 + 2 + 4, l_y = 4 + 1 + 8 + 1 + 10; //打印关卡级别的位置
   for (l = 5; l < 30; l++) {
     a = 10;
     b = l;
-
+    // x = 10, y=5~30
     PrintXY("  ", TerminalControl::ColorType::CYAN,
             TerminalControl::ColorLocate::BACK, a, b);
     a = 40;
@@ -56,6 +55,7 @@ void Printer::PrintStartInterface() {
   for (w = 10; w < 59; w++) {
     a = w;
     b = 5;
+    // x =10~59, y=5
     PrintXY("  ", TerminalControl::ColorType::CYAN,
             TerminalControl::ColorLocate::BACK, a, b);
     b = 30;
@@ -70,6 +70,7 @@ void Printer::PrintStartInterface() {
 
   //打印边框 行，（5,10-58） （30，10-58）
   //打印另外一行，（12，42-56）
+  //x=40 ~ 59 y=14
   for (w = 40; w < 59; w++) {
     b = 14;
     a = w;
@@ -78,7 +79,5 @@ void Printer::PrintStartInterface() {
   }
   //打印边框 列三条（5-31,10）（5-31,40）（5-31,56）
   //隐藏光标
-  terminal_->SetCursorVisual(false);
-  terminal_->Reset();
   fflush(NULL);
 }
