@@ -3,12 +3,14 @@
 //
 
 #include <GameView.h>
+#include <algorithm>
 
 GameView::GameView()
     : UpCube(Cube::CubeType(random() % 6), random() % 4, 20, 20) {
   Startview = Interface();
   DownView = Interface();
   UpView = Interface();
+  DownCube = DownCubes();
   p = Printer();
 }
 void GameView::init() {
@@ -45,10 +47,10 @@ bool GameView::OutputDownView() {
     for (int j = 0; j < 40; j++)
       if (DownCube.BackGround[i][j]) {
         p.PrintXY("1", TerminalControl::ColorType::RED,
-                  TerminalControl::ColorLocate::BACK, j + 60, i);
+                  TerminalControl::ColorLocate::BACK, j + 60, i + 2);
       } else {
         p.PrintXY("0", TerminalControl::ColorType::RED,
-                  TerminalControl::ColorLocate::BACK, j + 60, i);
+                  TerminalControl::ColorLocate::BACK, j + 60, i + 2);
       }
 }
 Cube GameView::CreatRandomCube() {
@@ -59,7 +61,7 @@ Cube GameView::CreatRandomCube() {
 void GameView::UpdateDown(Cube &cube) {
   //  DownView.InserArea(UpCube.locate_x, UpCube.locate_y, 5, 5,
   //                   UpCube.Display);
-  // todo 判断是否消除
+
   for (int i = 0; i < 5; i++)
     for (int j = 0; j < 5; j++) {
       if (cube.Display[j][i]) {
@@ -68,34 +70,31 @@ void GameView::UpdateDown(Cube &cube) {
             true;
       }
     }
+  DownView.ClearArea(DownCube.BackGround);
 
-  vector<int> lastlines;
+  // todo 判断是否消除
+  int arr[30] = {0};
   for (int j = 0; j < 30; j++) {
     for (int i = 13; i < 40; i++) {
       if (!DownCube.BackGround[j][i]) {
-        lastlines.push_back(j);
+        arr[j] = 1;
         break;
       }
     }
   }
-
-  if (lastlines.size() < 30) {
-    int a = lastlines.size();
-    for (int j = 29; j >= lastlines.size(); j--) {
+  int nextline = 29;
+  for (int ll = 29; ll >= 0; ll--) {
+    if (arr[ll]) {
       for (int i = 12; i < 40; i++) {
-        // copy line in lastline to line J
-        int b = lastlines[j];
-        DownCube.BackGround[j][i] = DownCube.BackGround[lastlines[30 - j]][i];
+        DownCube.BackGround[nextline][i] = DownCube.BackGround[ll][i];
       }
-    }
-    for (int j = 30 - lastlines.size(); j >= 0; j--) {
-      for (int i = 12; i < 40; i++) {
-        DownCube.BackGround[j][i] = 0;
-      }
+      nextline--;
     }
   }
+  for (; nextline >= 0; nextline--)
+    for (int i = 12; i < 40; i++) DownCube.BackGround[nextline][i] = 0;
   // DownView.ClearArea(DownCube.BackGround);
-
+  DownView.DrawArea(DownCube.BackGround);
   // DownView.DrawArea(DownCube.BackGround);
 
   // todo 判断是否结束游戏

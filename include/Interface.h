@@ -25,8 +25,8 @@ class Interface {
     }
   }
   void DrawArea(bool map[30][40]) {
-    for (int i = 13; i < 40; i++)
-      for (int j = 0; j < 24; j++) {
+    for (int i = 12; i < 40; i++)
+      for (int j = 29; j > 6; j--) {
         if (map[j][i]) {
           drawer_.PrintXY(" ", TerminalControl::ColorType::CYAN,
                           TerminalControl::ColorLocate::BACK, i, j);
@@ -35,12 +35,13 @@ class Interface {
   }
   void ClearArea(bool map[30][40]) {
     for (int i = 12; i < 40; i++)
-      for (int j = 6; j < 30; j++) {
-        drawer_.PrintXY(" ", TerminalControl::ColorType::BLACK,
-                        TerminalControl::ColorLocate::BACK, i, j);
+      for (int j = 29; j > 6; j--) {
+        if (map[j][i]) {
+          drawer_.PrintXY(" ", TerminalControl::ColorType::BLACK,
+                          TerminalControl::ColorLocate::BACK, i, j);
+        }
       }
   }
-  void DrawArea(int x_, int y_, bool map[30][40]) {}
   void ClearArea(int x_, int y_, int xsize, int ysize,
                  vector<vector<bool>> &data) {
     for (int i = 0; i < xsize; i++)
