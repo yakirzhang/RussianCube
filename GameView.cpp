@@ -59,8 +59,6 @@ Cube GameView::CreatRandomCube() {
 }
 
 void GameView::UpdateDown(Cube &cube) {
-  //  DownView.InserArea(UpCube.locate_x, UpCube.locate_y, 5, 5,
-  //                   UpCube.Display);
 
   for (int i = 0; i < 5; i++)
     for (int j = 0; j < 5; j++) {
